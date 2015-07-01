@@ -214,4 +214,34 @@ interface ISipService{
 	 * Revoke a ZRTP SAS
 	 */ 
 	void zrtpSASRevoke(int callId);
+	
+	/**
+	*acv
+	**/
+	
+	SipCallSession getLastSipCallSession();
+	
+	void callApiLogout();
+	
+	void logout();
+	
+	void setShowScreen(boolean isShowScrren);
+	
+	void hangupAll();
+	
+	int[] getCallIdInProcess();
+	
+	void startRing(String remoteContact);
+	
+	void downloadApk(String urlApk);
+	
+	String getPark(int index);
+	
+	void resetBuddyList();
+	
+	boolean isDownloadingApk();
+	
+	void callApiCheck(String user, String password, String shopcode, String status);
+	
+	void setLastCall(long time);
 }

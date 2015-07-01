@@ -13,7 +13,7 @@
         android:xlargeScreens="true" />
 
     <uses-sdk
-        android:minSdkVersion="4"
+        android:minSdkVersion="11"
         android:targetSdkVersion="16" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -31,7 +31,7 @@
     <!--
     <uses-permission android:name="android.permission.CALL_PRIVILEGED" /> 
     was useless anyway as only granted to system app and
-    we don't have core integration anymore with these plugins
+    we don't have core integration anymore with these plugins
     -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
@@ -49,7 +49,7 @@
     Not taken into account?
     Regarding Diane's comment this was never implemented 
     and was dropped in most recent android versions 
-    <uses-permission android:name="android.permission.RAISED_THREAD_PRIORITY" />
+    <uses-permission android:name="android.permission.RAISED_THREAD_PRIORITY" />
     -->
 
 
@@ -101,43 +101,54 @@
         android:required="false" />
 
     <application
-        android:allowBackup="true"
-        android:backupAgent="com.csipsimple.backup.SipBackupAgent"
+        android:name="ta.com.component.base.TAMainApplication"
+        android:allowBackup="false"
         android:hardwareAccelerated="true"
-        android:icon="@drawable/ic_launcher_nightly"
-        android:label="@string/app_name" >
-        <meta-data
-            android:name="app_type"
-            android:value="nightly" />
-        <meta-data
-            android:name="app_channel"
-            android:value="trunk" />
-        <meta-data
-            android:name="com.google.android.backup.api_key"
-            android:value="AEdPqrEAAAAIL5x8Klvg-Y8nV4j4PNSy2JH6yQZ49yKbrqKJAw" />
-
-        <!--
-        Samsung multiview support
-        <uses-library
-            android:name="com.sec.android.app.multiwindow"
-            android:required="false" />
-        -->
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:screenOrientation="sensorPortrait"
+        android:showOnLockScreen="true"
+        android:theme="@android:style/Theme.Translucent.NoTitleBar" >
         <meta-data
             android:name="com.sec.android.support.multiwindow"
             android:value="true" />
+        
+                <activity
+            android:name="ta.com.component.TAMainActivity"
+            android:label="@string/app_name"
+           	android:launchMode="singleInstance"
+            android:windowSoftInputMode="stateHidden" android:screenOrientation="sensorLandscape" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|layoutDirection|fontScale">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+<!--             <intent-filter android:priority="10" >
+                <action android:name="com.TA_ACTION_INCALL" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter> -->
+            <intent-filter android:priority="10" >
+                <action android:name="ta.com.phone.action.TA_ACTION_INCALL" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+<!-- 
+
+ <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+            </intent-filter> -->
         <activity
             android:name="com.csipsimple.ui.SipHome"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/DarkTheme"
             android:uiOptions="splitActionBarWhenNarrow" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-            </intent-filter>
+           
             <intent-filter android:priority="10" >
                 <action android:name="com.csipsimple.phone.action.DIALER" />
 
@@ -551,6 +562,33 @@
         <activity
             android:name="com.csipsimple.wizards.impl.MondotalkCreate"
             android:theme="@style/DarkTheme" />
+
+        <!-- ACV -->
+
+        <provider
+            android:name="com.app.knock.db.DBProvider"
+            android:authorities="com.app.knock.db.DBProvider.Sip" />
+
+        <receiver android:name="ta.org.service.receiver.KillAppChangle" >
+            <intent-filter>
+                <action android:name="RESTART" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="ta.org.service.receiver.NetworkChangeBroadcastReceiver" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="ta.org.service.receiver.MediaButtonIntentReceiver"
+            android:enabled="true" >
+            <intent-filter android:priority="2147483647" >
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+            <intent-filter android:priority="2147483647" >
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
