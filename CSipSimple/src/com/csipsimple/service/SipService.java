@@ -30,17 +30,27 @@ import java.util.concurrent.Semaphore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.pjsip.pjsua.pjsua;
 
 import ta.com.component.base.TAMainApplication;
 import ta.com.component.model.TADataStore;
 import ta.org.serivce.TADownloadManager;
+import ta.org.service.api.GtelAccount;
 import ta.org.service.utils.TASession.ClientStatus;
+import ta.org.service.utils.TAUtils;
+import z.lib.base.BaseUtils;
+import z.lib.base.BaseUtils.API;
 import z.lib.base.CommonAndroid;
+import z.lib.base.LogUtils;
+import z.lib.base.callback.RestClient;
+import z.lib.base.callback.RestClient.RequestMethod;
 import z.lib.base.callback.TACallBack;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -52,6 +62,7 @@ import android.net.NetworkInfo.DetailedState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -68,6 +79,8 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.app.knock.db.AccountDB;
+import com.app.knock.db.TASetting;
+import com.app.knock.db.TASetting.SettingType;
 import com.csipsimple.R;
 import com.csipsimple.api.ISipConfiguration;
 import com.csipsimple.api.ISipService;
@@ -897,8 +910,9 @@ public class SipService extends Service {
 				protected void doRun() throws SameThreadException {
 					if (pjService != null) {
 						try {
-							for (SipCallSession sip : getCalls())
+							for (SipCallSession sip : getCalls()) {
 								pjService.callHangup(sip.getCallId(), 0);
+							}
 						} catch (RemoteException e) {
 						}
 					}
@@ -941,9 +955,9 @@ public class SipService extends Service {
 		}
 
 		@Override
-		public void callApiCheck(String user, String password, String shopcode, String status) throws RemoteException {
-			// TODO Auto-generated method stub
-
+		public void callApiCheck(String user, String password, String shopCode, String conflict_confirmation_flg) throws RemoteException {
+			pushStartLogin("start", "");
+			SipService.this.callApiCheck(user, password, shopCode, conflict_confirmation_flg);
 		}
 
 	};
@@ -970,6 +984,243 @@ public class SipService extends Service {
 		pjService.resetBuddy(park3SIPAddress);
 		pjService.resetBuddy(park4SIPAddress);
 	}
+
+	/**
+	 * save account login sip
+	 */
+	private GtelAccount gtelAccount = new GtelAccount();
+
+	private void callApiCheck(final String user, final String password, final String shopCode, final String conflict_confirmation_flg) {
+		new AsyncTask<String, String, String>() {
+
+			@Override
+			protected String doInBackground(String... params) {
+				try {
+					JSONObject temp = new JSONObject();
+					temp.put("user_id", user);
+					temp.put("password", password);
+					temp.put("exten", "");
+					temp.put("shop_code", shopCode);
+					temp.put("conflict_confirmation_flg", conflict_confirmation_flg);
+					JSONObject inputs = new JSONObject();
+					inputs.put("req", temp);
+					RestClient client = new RestClient(BaseUtils.API.BASESERVER(SipService.this) + API.API_USER_LOGIN);
+					client.addHeader("Content-Type", "application/json; charset=utf-8");
+					client.addHeader("Accept", "application/json; charset=utf-8");
+					client.addParam2(inputs);
+					client.execute(RequestMethod.POST);
+
+					return client.getResponse();
+				} catch (Exception ex) {
+
+				}
+				return null;
+			}
+
+			protected void onPostExecute(String result) {
+				try {
+
+					JSONObject jsonObject = new JSONObject(result);
+					String conflict_state = CommonAndroid.getString(jsonObject.getJSONObject("res"), "conflict_state");
+					String is_success = CommonAndroid.getString(jsonObject.getJSONObject("res"), "is_success");
+					String err_msg = CommonAndroid.getString(jsonObject.getJSONObject("res"), "err_msg");
+					String count = CommonAndroid.getString(jsonObject.getJSONObject("res"), "count");
+
+					if ("1".equals(is_success)) {
+						pushStartLogin("check", err_msg);
+					} else if ("0".equals(is_success)) {
+
+						JSONArray array = jsonObject.getJSONObject("res").getJSONArray("user");
+						JSONObject object = array.getJSONObject(0);
+
+						String prefix = CommonAndroid.getString(object, "prefix");
+						String sip_userid = CommonAndroid.getString(object, "sip_userid");
+						String sip_password = CommonAndroid.getString(object, "sip_password");
+
+						// Update account
+						AccountDB accountDB = new AccountDB(SipService.this);
+						ContentValues contentValues = new ContentValues();
+						contentValues.put(AccountDB.time_update, System.currentTimeMillis() + "");
+						contentValues.put(AccountDB.password, password);
+						/**
+						 * 
+						 */
+
+						contentValues.put(AccountDB.prefix, CommonAndroid.getString(object, AccountDB.prefix));
+						contentValues.put(AccountDB.sip_userid, CommonAndroid.getString(object, AccountDB.sip_userid));
+						contentValues.put(AccountDB.sip_password, CommonAndroid.getString(object, AccountDB.sip_password));
+
+						contentValues.put(AccountDB.shop_code, CommonAndroid.getString(object, "shop_code"));
+						contentValues.put(AccountDB.shop_name, CommonAndroid.getString(object, "shop_name"));
+						contentValues.put(AccountDB.user_id, CommonAndroid.getString(object, "user_id"));
+						contentValues.put(AccountDB.last_name, CommonAndroid.getString(object, "last_name"));
+						contentValues.put(AccountDB.fast_name, CommonAndroid.getString(object, "fast_name"));
+						contentValues.put(AccountDB.last_name_kana, CommonAndroid.getString(object, "last_name_kana"));
+						contentValues.put(AccountDB.fast_name_kana, CommonAndroid.getString(object, "fast_name_kana"));
+						contentValues.put(AccountDB.exten, CommonAndroid.getString(object, "exten"));
+						contentValues.put(AccountDB.image, CommonAndroid.getString(object, "image"));
+						contentValues.put(AccountDB.mail, CommonAndroid.getString(object, "mail"));
+						contentValues.put(AccountDB.gateway, CommonAndroid.getString(object, "gateway"));
+						contentValues.put(AccountDB.gateway_sip_port, CommonAndroid.getString(object, "gateway_sip_port"));
+						contentValues.put(AccountDB.gateway_rtp_port, CommonAndroid.getString(object, "gateway_rtp_port"));
+						contentValues.put(AccountDB.codec, CommonAndroid.getString(object, "codec"));
+						contentValues.put(AccountDB.encryption, CommonAndroid.getString(object, "encryption"));
+						contentValues.put(AccountDB.description, CommonAndroid.getString(object, "description"));
+						contentValues.put(AccountDB.auth, CommonAndroid.getString(object, "auth"));
+						contentValues.put(AccountDB.update_date, CommonAndroid.getString(object, "update_date"));
+						contentValues.put(AccountDB.supdate_user, CommonAndroid.getString(object, "supdate_user"));
+
+						String where = String.format("%s = '%s'", AccountDB.sip_userid, user);
+						if (accountDB.has(where)) {
+							// update
+							getContentResolver().update(accountDB.getContentUri(), contentValues, where, null);
+						} else {
+							getContentResolver().insert(accountDB.getContentUri(), contentValues);
+							// insert
+						}
+
+						new TASetting(SipService.this).setSetting(SettingType.user, user);
+						new TASetting(SipService.this).setSetting(SettingType.password, password);
+						new TASetting(SipService.this).setSetting(SettingType.shopcode, shopCode);
+						callApiInfor(user, sip_userid, sip_password, prefix);
+					} else {
+						// login false
+						String message = err_msg;
+						if (CommonAndroid.isBlank(message)) {
+							message = getString(R.string.error_connect_server);
+						}
+
+						pushStartLogin("error", message);
+					}
+				} catch (Exception ex) {
+					pushStartLogin("error", getString(R.string.error_connect_server));
+				}
+			}
+
+		}.execute("");
+
+	}
+
+	private void callApiInfor(final String user, final String sip_userid, final String sip_password, final String prefix) {
+		// mobileuc/server/info
+
+		new AsyncTask<String, String, String>() {
+			@Override
+			protected String doInBackground(String... params) {
+				try {
+
+					String user = new TASetting(SipService.this).get(SettingType.user);// DataStore.getInstance().init(TAMainApplication.this).getUser();
+					String password = new TASetting(SipService.this).get(SettingType.password);
+					JSONObject temp = new JSONObject();
+					temp.put("user_id", sip_userid);
+					temp.put("password", sip_password);
+					temp.put("request_user", user);
+					temp.put("request_user_password", password);
+					JSONObject inputs = new JSONObject();
+					inputs.put("req", temp);
+					RestClient client = new RestClient(BaseUtils.API.BASESERVER(SipService.this) + API.API_USER_INFOR);
+					client.addHeader("Content-Type", "application/json; charset=utf-8");
+					client.addHeader("Accept", "application/json; charset=utf-8");
+					client.addParam2(inputs);
+					client.execute(RequestMethod.POST);
+					return client.getResponse();
+				} catch (Exception ex) {
+
+				}
+				return null;
+			}
+
+			protected void onPostExecute(String result) {
+				try {
+					JSONObject res = new JSONObject(result).getJSONObject("res");
+					String err_msg = CommonAndroid.getString(res, "err_msg");
+					String err_code = CommonAndroid.getString(res, "err_code");
+					String is_success = CommonAndroid.getString(res, "is_success");
+
+					if ("0".equals(is_success)) {
+						ContentValues values = new ContentValues();
+						values.put(AccountDB.sip_host, CommonAndroid.getString(res, AccountDB.sip_host));
+						values.put(AccountDB.sip_port, CommonAndroid.getString(res, AccountDB.sip_port));
+						values.put(AccountDB.shop_code, CommonAndroid.getString(res, AccountDB.shop_code));
+						values.put(AccountDB.shop_name, CommonAndroid.getString(res, AccountDB.shop_name));
+						values.put(AccountDB.description, CommonAndroid.getString(res, AccountDB.description));
+
+						/**
+						 * server 192.168.2.9 not has
+						 */
+						if (res.has(AccountDB.sip_host_secondary))
+							values.put(AccountDB.sip_host_secondary, CommonAndroid.getString(res, AccountDB.sip_host_secondary));
+
+						if (res.has(AccountDB.sip_port_secondary))
+							values.put(AccountDB.sip_port_secondary, CommonAndroid.getString(res, AccountDB.sip_port_secondary));
+
+						if (res.has(AccountDB.codec))
+							values.put(AccountDB.codec, CommonAndroid.getString(res, AccountDB.codec));
+
+						if (res.has(AccountDB.encryption))
+							values.put(AccountDB.encryption, CommonAndroid.getString(res, AccountDB.encryption));
+
+						values.put(AccountDB.time_update, System.currentTimeMillis() + "");
+						String where = String.format("%s = '%s'", AccountDB.user_id, user);
+						AccountDB accountDB = new AccountDB(SipService.this);
+
+						if (accountDB.has(where)) {
+							// update
+							getContentResolver().update(accountDB.getContentUri(), values, where, null);
+						} else {
+							getContentResolver().insert(accountDB.getContentUri(), values);
+							// insert
+						}
+
+						gtelAccount.update(user, sip_userid);
+
+						/*
+						 * if
+						 * (CommonAndroid.isBlank(CommonAndroid.getString(res,
+						 * AccountDB.sip_host)) // ||
+						 * CommonAndroid.isBlank(CommonAndroid.getString(res,
+						 * AccountDB.sip_port))// // ||
+						 * CommonAndroid.isBlank(prefix)// ) {
+						 * pushStartLogin("error", err_msg); } else {
+						 * startSip("account", sip_userid, sip_password,
+						 * CommonAndroid.getString(res, AccountDB.sip_host),
+						 * CommonAndroid.getString(res, AccountDB.sip_port),
+						 * prefix); }
+						 */
+
+						if (CommonAndroid.isBlank(CommonAndroid.getString(res, AccountDB.sip_host))) {
+							pushStartLogin("error", err_msg);
+						} else {
+							startSip("account", sip_userid, sip_password, CommonAndroid.getString(res, AccountDB.sip_host), CommonAndroid.getString(res, AccountDB.sip_port), prefix);
+						}
+					} else {
+						if (CommonAndroid.isBlank(err_msg)) {
+							err_msg = getString(R.string.error_connect_server);
+						}
+						pushStartLogin("error", err_msg);
+					}
+				} catch (Exception ex) {
+					pushStartLogin("error", getString(R.string.error_connect_server));
+				}
+			}
+		}.execute("");
+	};
+
+	private void startSip(String account, String sip_userid, String sip_password, String sip_host, String sip_port, String prefix) {
+
+		TADataStore taDataStore = new TADataStore(SipService.this);
+
+		if (CommonAndroid.isBlank(sip_port)) {
+			// default port
+			sip_port = "5060";
+		}
+		String server = ("0000".equals(sip_port) ? sip_host : (sip_host + ":" + sip_port));
+
+		sip_userid = prefix + sip_userid;
+
+		LogUtils.e("accountxx", String.format("%s %s %s %s", account, sip_userid, sip_password, server));
+		taDataStore.save(account, sip_password, server, sip_userid);
+	};
 
 	private final ISipConfiguration.Stub binderConfiguration = new ISipConfiguration.Stub() {
 
@@ -1013,6 +1264,16 @@ public class SipService extends Service {
 		}
 
 	};
+
+	private void pushStartLogin(String status, String message) {
+		if (CommonAndroid.isBlank(message)) {
+			message = getString(R.string.error_connect_server);
+		}
+		Intent intent = new Intent(TAUtils.ACTION.ACTION_BROADCAST_LOGIN_CALLBACK);
+		intent.putExtra(TAUtils.KEY.STATUS, status);
+		intent.putExtra(TAUtils.KEY.MESSGAE, message);
+		SipService.this.sendBroadcast(intent);
+	}
 
 	private String park(int number) {
 		String PARK1 = "*801";

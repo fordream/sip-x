@@ -466,7 +466,7 @@ public class TAMainApplication extends ReportApplication {
 
 	}
 
-	public void hangup(final int callId) {
+	public void hangup(final int callId, final int status) {
 		init(new TAMainApplicationCallBackIinit() {
 			@Override
 			public void onServiceDisconnected() {
@@ -476,13 +476,13 @@ public class TAMainApplication extends ReportApplication {
 			@Override
 			public void onServiceConnected() {
 				try {
-					getService().hangup(callId, 0);
+					getService().hangup(callId, status);
 				} catch (Exception e) {
 				}
 			}
 		});
 	}
-	
+
 	public void cancelTransfer() {
 		init(new TAMainApplicationCallBackIinit() {
 			@Override
@@ -496,10 +496,10 @@ public class TAMainApplication extends ReportApplication {
 					SipCallSession[] callSessions = null;
 					try {
 						callSessions = getService().getCalls();
-						
+
 						for (int i = 0; i < callSessions.length; i++) {
 							SipCallSession session = callSessions[i];
-							
+
 							if (session.isActive()) {
 								if (session.getCallState() != InvState.CONFIRMED) {
 									getService().hangup(session.getCallId(), 0);
@@ -514,7 +514,7 @@ public class TAMainApplication extends ReportApplication {
 				}
 			}
 		});
-		
+
 	}
 
 	public void exferTransfer(final int callId, final int otherCallId) {
@@ -576,6 +576,41 @@ public class TAMainApplication extends ReportApplication {
 			public void onServiceConnected() {
 				try {
 					getService().downloadApk(urlApk);
+				} catch (Exception e) {
+				}
+			}
+		});
+	}
+
+	public void callApiCheck(final String user, final String password, final String shopCode, final String status) {
+		init(new TAMainApplicationCallBackIinit() {
+			@Override
+			public void onServiceDisconnected() {
+				CommonAndroid.toast(getApplicationContext(), "onServiceDisconnected");
+			}
+
+			@Override
+			public void onServiceConnected() {
+				try {
+					getService().callApiCheck(user, password, shopCode, status);
+				} catch (Exception e) {
+					CommonAndroid.toast(getApplicationContext(), e.getMessage());
+				}
+			}
+		});
+	}
+
+	public void hangupAll() {
+		init(new TAMainApplicationCallBackIinit() {
+			@Override
+			public void onServiceDisconnected() {
+				CommonAndroid.toast(getApplicationContext(), "onServiceDisconnected");
+			}
+
+			@Override
+			public void onServiceConnected() {
+				try {
+					getService().hangupAll();
 				} catch (Exception e) {
 				}
 			}

@@ -212,7 +212,7 @@ public class ContactView extends LinearLayout implements View.OnClickListener, O
 			public void onClick(View v) {
 				if (mContactType == ContactType.TRANSFER2) {
 					if (callId != SipCallSession.INVALID_CALL_ID) {
-						((TAMainApplication) getContext().getApplicationContext()).hangup(callId);
+						((TAMainApplication) getContext().getApplicationContext()).hangup(callId, 0);
 					} else {
 						((TAMainApplication) getContext().getApplicationContext()).cancelTransfer();
 					}
@@ -626,12 +626,12 @@ public class ContactView extends LinearLayout implements View.OnClickListener, O
 					if (mContactType == ContactType.TRANSFER2) {
 						LogUtils.i("TRANSFER", "CANCEL:" + callId);
 						if (callId != SipCallSession.INVALID_CALL_ID) {
-							((TAMainApplication) getContext().getApplicationContext()).hangup(callId);
+							((TAMainApplication) getContext().getApplicationContext()).hangup(callId, 0);
 						} else {
 							((TAMainApplication) getContext().getApplicationContext()).cancelTransfer();
 						}
 					} else {
-						((TAMainApplication) getContext().getApplicationContext()).hangup(callId);
+						((TAMainApplication) getContext().getApplicationContext()).hangup(callId, 0);
 					}
 				}
 			});

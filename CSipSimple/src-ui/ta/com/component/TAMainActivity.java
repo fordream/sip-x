@@ -155,12 +155,6 @@ public class TAMainActivity extends BaseActivity {
 
 			wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
 
-			// FIXME
-			// if (Build.VERSION.SDK_INT < 17) {
-			// } else {
-			// wakeLock = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP |
-			// PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
-			// }
 			wakeLock.acquire();
 			// do nothing
 			wakeLock.release();
@@ -208,11 +202,7 @@ public class TAMainActivity extends BaseActivity {
 							&& callId != currentCallId) {
 						// if client in a call
 						// busy --> hangup this incoming call
-						try {
-							((TAMainApplication) getApplication()).getService().hangup(callSession.getCallId(), 0);
-						} catch (RemoteException e) {
-							e.printStackTrace();
-						}
+						(TAMainApplication.getInstance()).hangup(callSession.getCallId(), 0);
 					} else {
 						((TAMainApplication) getApplication()).startRing(callSession.getRemoteContact());
 
@@ -233,7 +223,7 @@ public class TAMainActivity extends BaseActivity {
 					if (getClientCallState() == ClientPresentCallState.CONFIRMED) {// conference
 																					// to
 																					// transfer
-						
+
 						ta_main_status.setText(R.string.call_state_transfer_early);
 					} else {
 						updateControlUI(TAMainStatus.Outgoing, false);
@@ -258,7 +248,7 @@ public class TAMainActivity extends BaseActivity {
 					if (getClientCallState() == ClientPresentCallState.CONFIRMED && currentCallId != callSession.getCallId()) {
 						// delay time for confirm
 						ta_main_status.setText(R.string.call_state_transfer_confirmed);
-						
+
 						final Intent xintent = intent;
 						if (handler != null && runnable != null) {
 							handler.removeCallbacks(runnable);
@@ -325,9 +315,9 @@ public class TAMainActivity extends BaseActivity {
 					} else {
 						if ((menu2view.getVisibility() == View.VISIBLE || contactview.getVisibility() == View.VISIBLE) && currentCallId != callSession.getCallId()) { // transfer
 							ta_main_status.setText(R.string.status_tranfer);
-							
+
 							callTranferNumber(intent);
-							
+
 							return;
 						}
 					}
@@ -666,19 +656,15 @@ public class TAMainActivity extends BaseActivity {
 				menuleftview.setVisibility(View.VISIBLE);
 			} else if (v.getId() == R.id.ta_main_btn_1) {
 				if (taMainStatus == TAMainStatus.NONE) {
-					return;
+//					return;
 				}
-				SipCallSession session = TASipManager.getSipCallingSession(getISipService());
-				if (session != null) {
-					try {
+//				SipCallSession session = TASipManager.getSipCallingSession(getISipService());
+//				if (session != null) {
 						// ((TAMainApplication)
 						// getApplication()).getService().hangup(session.getCallId(),
 						// 0);
-						TAMainApplication.getInstance().getService().hangupAll();
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					}
-				}
+						TAMainApplication.getInstance().hangupAll();
+//				}
 
 			} else if (v.getId() == R.id.ta_main_btn_2) {
 				if (taMainStatus == TAMainStatus.NONE || taMainStatus == TAMainStatus.Incoming || taMainStatus == TAMainStatus.Outgoing) {
@@ -701,7 +687,7 @@ public class TAMainActivity extends BaseActivity {
 					return;
 				}
 
-//				setClientCallState(ClientPresentCallState.PRE_PARK);
+				// setClientCallState(ClientPresentCallState.PRE_PARK);
 				parkTimeCount = 0;
 				menu3View.setVisibility(View.VISIBLE);
 			} else if (v.getId() == R.id.ta_main_btn_4) {
@@ -1134,10 +1120,8 @@ public class TAMainActivity extends BaseActivity {
 		this.user = user;
 		this.password = password;
 		this.shopCode = shopCode;
-		try {
-			TAMainApplication.getInstance().getService().callApiCheck(user, password, shopCode, "1");
-		} catch (RemoteException e) {
-		}
+		TAMainApplication.getInstance().callApiCheck(user, password, shopCode, "1");
+
 	}
 
 	private String user, password, shopCode;
@@ -1156,18 +1140,6 @@ public class TAMainActivity extends BaseActivity {
 			} else if ("check".equals(status)) {
 				showLoading(false, false);
 				String message = intent.getStringExtra(TAUtils.KEY.MESSGAE);
-				// CommonAndroid.showDialogYESNO(TAMainActivity.this, message,
-				// new DialogInterface.OnClickListener() {
-				//
-				// @Override
-				// public void onClick(DialogInterface dialog, int which) {
-				// try {
-				// TAMainApplication.getInstance().getService().callApiCheck(user,
-				// password, shopCode, "0");
-				// } catch (RemoteException e) {
-				// }
-				// }
-				// }, null);
 
 				LoginCheckDialog loginCheckDialog = new LoginCheckDialog(TAMainActivity.this, message) {
 
@@ -1342,10 +1314,10 @@ public class TAMainActivity extends BaseActivity {
 
 			if (!CommonAndroid.isBlank(exten)) {
 				ta_main_status.setText(R.string.call_state_transfer_start);
-				
+
 				((TAMainApplication) getApplication()).hold();
 				((TAMainApplication) getApplication()).makeCallFromTranferKeyBoard(exten);
-				
+
 			} else {
 
 			}

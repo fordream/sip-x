@@ -142,6 +142,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter> -->
+        <!-- 
         <activity
             android:name="com.csipsimple.ui.SipHome"
             android:label="@string/app_name"
@@ -215,6 +216,9 @@
                 <data android:scheme="sips" />
             </intent-filter>
         </activity-alias>
+        
+        
+         -->
 
         <!-- Main service -->
         <!-- Require at least the configure permission to use -->
@@ -256,12 +260,12 @@
         </receiver>
 
         <!-- Main ui -->
-        <activity
+       <!--  <activity
             android:name="com.csipsimple.ui.calllog.CallLogDetailsActivity"
-            android:theme="@style/DarkTheme" />
+            android:theme="@style/DarkTheme" /> -->
 
         <!-- Accounts -->
-        <activity
+      <!--   <activity
             android:name="com.csipsimple.ui.filters.AccountFilters"
             android:configChanges="orientation"
             android:label="@string/filters"
@@ -275,10 +279,10 @@
             android:name="com.csipsimple.wizards.WizardChooser"
             android:configChanges="orientation"
             android:label="@string/choose_wizard"
-            android:theme="@style/DarkTheme.Dialog" />
+            android:theme="@style/DarkTheme.Dialog" /> -->
 
         <!-- Preferences -->
-        <activity
+        <!-- <activity
             android:name="com.csipsimple.ui.prefs.hc.MainPrefs"
             android:configChanges="orientation"
             android:enabled="@bool/use_hc_prefs"
@@ -335,13 +339,13 @@
             android:label="@string/test_audio"
             android:screenOrientation="portrait"
             android:theme="@style/DarkTheme.Dialog" />
-
+         -->
         <!-- Wizards -->
-        <activity
+      <!--   <activity
             android:name="com.csipsimple.wizards.BasePrefsWizard"
             android:configChanges="orientation"
             android:label="@string/edit"
-            android:theme="@style/DarkTheme" />
+            android:theme="@style/DarkTheme" /> -->
 
         <!-- Call management -->
         <receiver
@@ -355,7 +359,7 @@
             </intent-filter>
         </receiver>
 
-        <activity
+        <!-- <activity
             android:name="com.csipsimple.ui.outgoingcall.OutgoingCallChooser"
             android:allowTaskReparenting="false"
             android:configChanges="orientation"
@@ -435,10 +439,10 @@
 
                 <data android:scheme="smsto" />
             </intent-filter>
-        </activity-alias>
+        </activity-alias> -->
 
         <!-- To be able to do video, this has to be launched in sipStack process -->
-        <activity
+      <!--   <activity
             android:name="com.csipsimple.ui.incall.InCallActivity"
             android:allowTaskReparenting="true"
             android:configChanges="orientation"
@@ -464,7 +468,7 @@
             android:configChanges="orientation"
             android:label="@string/prefs_media"
             android:taskAffinity="com.csipsimple.ui.incall.InCallActivity"
-            android:theme="@style/DarkTheme.Dialog" />
+            android:theme="@style/DarkTheme.Dialog" /> -->
 
         <receiver android:name="com.csipsimple.service.HeadsetButtonReceiver" />
 
@@ -484,13 +488,13 @@
                 android:resource="@xml/appwidget_info" />
         </receiver>
 
-        <activity
+   <!--      <activity
             android:name="com.csipsimple.widgets.AccountWidgetConfigure"
             android:theme="@style/DarkTheme" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
-        </activity>
+        </activity> -->
 
         <receiver
             android:name="com.csipsimple.widgets.ShortcutWidgetProvider"
@@ -505,21 +509,21 @@
                 android:resource="@xml/appshortcut_info" />
         </receiver>
 
-        <activity
+     <!--    <activity
             android:name="com.csipsimple.widgets.ShortcutWidgetConfigure"
             android:theme="@style/DarkTheme" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
-
+      -->
         <!-- Messages -->
-        <activity
+       <!--  <activity
             android:name="com.csipsimple.ui.messages.MessageActivity"
             android:configChanges="orientation"
             android:launchMode="singleTop"
             android:theme="@style/DarkTheme"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden" /> -->
 
         <!-- Embedded plugins -->
         <!-- Call handlers android:process=":telCallHandler" -->
@@ -544,13 +548,13 @@
             android:process=":sipStack" />
 
         <!-- New UI -->
-        <activity
+       <!--  <activity
             android:name="com.csipsimple.ui.account.AccountsEditList"
             android:label="@string/accounts"
             android:theme="@style/DarkTheme" />
         <activity
             android:name="com.csipsimple.ui.account.AccountEdit"
-            android:theme="@style/DarkTheme" />
+            android:theme="@style/DarkTheme" /> -->
 
         <!-- Extra codecs -->
 
@@ -559,9 +563,9 @@
 
 
         <!-- Extra wizard creation account activities -->
-        <activity
+       <!--  <activity
             android:name="com.csipsimple.wizards.impl.MondotalkCreate"
-            android:theme="@style/DarkTheme" />
+            android:theme="@style/DarkTheme" /> -->
 
         <!-- ACV -->
 

@@ -138,7 +138,7 @@ public class Menu2View extends LinearLayout implements View.OnClickListener {
 			setVisibility(View.GONE);
 		} else if (R.id.menu2_call_1 == v.getId()) {
 			if (invState == InvState.CONFIRMED) {
-				TAMainApplication.getInstance().hangup(callId);
+				TAMainApplication.getInstance().hangup(callId, 0);
 			} else {
 				TAMainApplication.getInstance().cancelTransfer();
 			}
