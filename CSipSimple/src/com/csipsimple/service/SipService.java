@@ -2410,6 +2410,7 @@ public class SipService extends Service {
 		intent.putExtra(SipManager.EXTRA_CALL_INFO, toSendInfo);
 		intent.setPackage(UI_CALL_PACKAGE);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		
 		return intent;
 	}
 

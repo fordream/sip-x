@@ -70,6 +70,8 @@ import org.pjsip.pjsua.pjsip_status_code;
 import org.pjsip.pjsua.pjsua;
 import org.pjsip.pjsua.pjsua_buddy_info;
 
+import z.lib.base.LogUtils;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,7 +155,8 @@ public class UAStateReceiver extends Callback {
 			final String remContact = callInfo.getRemoteContact();
 			callInfo.setIncoming(true);
 			notificationManager.showNotificationForCall(callInfo);
-
+			//FIXME
+			
 			// Auto answer feature
 			SipProfile acc = pjService.getAccountForPjsipId(accId);
 			Bundle extraHdr = new Bundle();
@@ -182,6 +185,8 @@ public class UAStateReceiver extends Callback {
 				launchCallHandler(callInfo);
 				Log.d(THIS_FILE, "Incoming call >>");
 			}
+			
+			LogUtils.e("AAAAAAAAAAAAAAAAAAAAA", "adddd1 " + shouldAutoAnswer);
 		} catch (SameThreadException e) {
 			// That's fine we are in a pjsip thread
 		} finally {
@@ -620,6 +625,7 @@ public class UAStateReceiver extends Callback {
 				switch (callState) {
 				case SipCallSession.InvState.INCOMING:
 				case SipCallSession.InvState.CALLING:
+					LogUtils.e("AAAAAAAAAAAAAAAAAAAAA", "adddd2");
 					stateReceiver.notificationManager.showNotificationForCall(callInfo);
 					stateReceiver.launchCallHandler(callInfo);
 					stateReceiver.broadCastAndroidCallState("RINGING", callInfo.getRemoteContact());
@@ -634,6 +640,8 @@ public class UAStateReceiver extends Callback {
 					// Anyway if we miss the call early + confirmed we
 					// do not need to show the UI.
 					stateReceiver.notificationManager.showNotificationForCall(callInfo);
+					//FIXME
+					LogUtils.e("AAAAAAAAAAAAAAAAAAAAA", "adddd3");
 					stateReceiver.launchCallHandler(callInfo);
 					stateReceiver.broadCastAndroidCallState("OFFHOOK", callInfo.getRemoteContact());
 

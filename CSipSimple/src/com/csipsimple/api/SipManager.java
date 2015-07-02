@@ -531,7 +531,7 @@ public final class SipManager {
 	/**
 	 * acv
 	 */
-	public static final String TA_ACTION_SIP_CALL_CHANGED_UI = "com.ACTION_SIP_CALL_CHANGED_UI";
+	public static final String TA_ACTION_SIP_CALL_CHANGED_UI = ACTION_SIP_CALL_UI;// "com.ACTION_SIP_CALL_CHANGED_UI";
 	public static final String EXTRA_BUDDY_NUMBER = "buddy_number";
 	public static final String TA_ACTION_SIP_BUDDY_CHANGED_STATE = "com.ACTION_SIP_BUDDY_CHANGED_STATE";
 	public static final String EXTRA_BUDDY_STATUS = "buddy_status";

@@ -840,6 +840,8 @@ public class TAMainActivity extends BaseActivity {
 		registerReceiver(receiverLoginApi, new IntentFilter(TAUtils.ACTION.ACTION_BROADCAST_LOGIN_CALLBACK));
 		getApplication().registerReceiver(callCalback, new IntentFilter(SipManager.TA_ACTION_SIP_CALL_CHANGED_UI));
 		getApplication().registerReceiver(callCalback, new IntentFilter(SipManager.ACTION_SIP_CALL_CHANGED));
+		getApplication().registerReceiver(callCalback, new IntentFilter("android.intent.action.PHONE_STATE"));
+		
 		
 		registerReceiver(buddyStateChanged, new IntentFilter(SipManager.TA_ACTION_SIP_BUDDY_CHANGED_STATE));
 		updateControlUI(TAMainStatus.NONE, false);

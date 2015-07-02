@@ -56,6 +56,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import z.lib.base.LogUtils;
+
 public class SipNotifications {
 
 	private final NotificationManager notificationManager;
@@ -328,6 +330,7 @@ public class SipNotifications {
 		Notification notification = inCallNotification.build();
 		notification.flags |= Notification.FLAG_NO_CLEAR;
 		notificationManager.notify(CALL_NOTIF_ID, notification);
+		
 	}
 
 	public void showNotificationForMissedCall(ContentValues callLog) {
